@@ -14,18 +14,11 @@ use hyper::{Request, Response};
 use hyper_util::rt::TokioIo;
 use tokio::net::TcpListener;
 
-fn factorial(n: u64) -> u64 {
-    // Initialize the result variable with 1
-    let mut result = 1;
-
-    // Start a for loop to calculate the factorial
-    for i in 1..=n {
-        // Multiply the result by the current value of 'i'
-        result *= i;
+fn factorial (n: u64) -> u64 {
+    match n {
+        0 => 1,
+        _ => n * factorial_recursive(n-1)
     }
-
-    // Return the calculated factorial
-    result
 }
 
 // An async function that consumes a request, does nothing with it and returns a
