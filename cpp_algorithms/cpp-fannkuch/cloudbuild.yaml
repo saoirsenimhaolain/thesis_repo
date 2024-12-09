@@ -1,0 +1,35 @@
+steps:
+  # Build the application image
+  - name: "gcr.io/cloud-builders/docker"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        docker build \
+        -t gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest . && \
+        docker push gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest
+
+  # Deploy to cloud run US
+  - name: "gcr.io/cloud-builders/gcloud"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        gcloud run deploy ${_SERVICE_NAME} \
+        --image gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest \
+        --region europe-north1 --platform managed \
+        --allow-unauthenticated
+
+  # Make the service publicly accessible
+  - name: "gcr.io/cloud-builders/gcloud"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        gcloud run services add-iam-policy-binding fannkuch-cpp --member="allUsers"  --role="roles/run.invoker"
+
+
+timeout: 1800s
+
+substitutions:
+  _SERVICE_NAME: fannkuch-cpp
